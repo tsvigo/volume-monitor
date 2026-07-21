@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Volume Monitor
+Comment=Real-time system volume display with rainbow dial
+Exec=/home/v/bin/volume_monitor
+Icon=audio-volume-high
+Terminal=false
+Categories=AudioVideo;Audio;
+Keywords=volume;audio;sound;
+StartupNotify=false

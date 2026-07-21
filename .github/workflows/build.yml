@@ -1,0 +1,72 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ qtbase5-dev pkg-config
+
+      - name: Build
+        run: |
+          g++ -O2 -fPIC -o volume_monitor volume_monitor.cpp $(pkg-config --cflags --libs Qt5Widgets Qt5Core)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: volume_monitor-linux-x64
+          path: volume_monitor
+
+  release:
+    needs: build-linux
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ qtbase5-dev pkg-config
+
+      - name: Build
+        run: |
+          g++ -O2 -fPIC -o volume_monitor volume_monitor.cpp $(pkg-config --cflags --libs Qt5Widgets Qt5Core)
+
+      - name: Get version
+        id: version
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Volume Monitor ${{ steps.version.outputs.tag }}
+          body: |
+            ## Volume Monitor ${{ steps.version.outputs.tag }}
+
+            Real-time system volume display with rainbow dial for Linux (PipeWire).
+
+            ### Install
+            ```bash
+            chmod +x volume_monitor
+            ./volume_monitor
+            ```
+
+            ### Requirements
+            - Linux with PipeWire
+            - Qt5 (`qtbase5-dev`)
+          files: volume_monitor
+          draft: false
+          prerelease: false

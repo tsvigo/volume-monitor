@@ -15,7 +15,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ qtbase5-dev pkg-config
+          sudo apt-get install -y g++ qtbase5-dev pkg-config libfuse2
 
       - name: Build
         run: |
@@ -39,7 +39,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ qtbase5-dev pkg-config
+          sudo apt-get install -y g++ qtbase5-dev pkg-config libfuse2 file
 
       - name: Build
         run: |
@@ -48,6 +48,51 @@ jobs:
       - name: Get version
         id: version
         run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Prepare AppDir
+        run: |
+          mkdir -p AppDir/usr/bin AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/256x256/apps
+          cp volume_monitor AppDir/usr/bin/
+          cp volume-monitor.desktop AppDir/usr/share/applications/
+          # Create icon from SVG
+          cat > /tmp/icon.svg << 'SVG'
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" rx="40" fill="#1e1e2a"/>
+            <circle cx="128" cy="110" r="75" fill="none" stroke="#444" stroke-width="12"/>
+            <path d="M128 35 A75 75 0 0 1 203 110" fill="none" stroke="url(#g)" stroke-width="14" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ff00ff"/>
+                <stop offset="17%" stop-color="#8800ff"/>
+                <stop offset="33%" stop-color="#0088ff"/>
+                <stop offset="50%" stop-color="#00ff88"/>
+                <stop offset="67%" stop-color="#ffff00"/>
+                <stop offset="83%" stop-color="#ff8800"/>
+                <stop offset="100%" stop-color="#ff0044"/>
+              </linearGradient>
+            </defs>
+            <circle cx="128" cy="110" r="40" fill="#2a2a3a"/>
+            <circle cx="128" cy="110" r="25" fill="#1a1a28"/>
+            <text x="128" y="220" text-anchor="middle" fill="#ddd" font-size="40" font-weight="bold" font-family="Sans">VOL</text>
+          </svg>
+          SVG
+          cp /tmp/icon.svg AppDir/usr/share/icons/hicolor/256x256/apps/volume-monitor.svg
+          cp /tmp/icon.svg AppDir/volume-monitor.svg
+          # Fix desktop file path
+          sed -i 's|Exec=.*|Exec=volume_monitor|' AppDir/usr/share/applications/volume-monitor.desktop
+
+      - name: Build AppImage
+        run: |
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -O linuxdeploy
+          chmod +x linuxdeploy
+          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage -O linuxdeploy-plugin-qt
+          chmod +x linuxdeploy-plugin-qt
+          ./linuxdeploy --appdir AppDir --plugin qt --output appimage
+
+      - name: Rename AppImage
+        run: |
+          ls -la *.AppImage
+          mv *.AppImage VolumeMonitor-${{ steps.version.outputs.tag }}-x86_64.AppImage
 
       - name: Create release
         uses: softprops/action-gh-release@v2
@@ -58,15 +103,23 @@ jobs:
 
             Real-time system volume display with rainbow dial for Linux (PipeWire).
 
-            ### Install
+            ### Install (AppImage)
             ```bash
-            chmod +x volume_monitor
-            ./volume_monitor
+            chmod +x VolumeMonitor-*.AppImage
+            ./VolumeMonitor-*.AppImage
+            ```
+            No dependencies needed — Qt5 bundled inside.
+
+            ### Install (from source)
+            ```bash
+            sudo apt install qtbase5-dev
+            g++ -O2 -fPIC -o volume_monitor volume_monitor.cpp $(pkg-config --cflags --libs Qt5Widgets Qt5Core)
             ```
 
             ### Requirements
             - Linux with PipeWire
-            - Qt5 (`qtbase5-dev`)
-          files: volume_monitor
+          files: |
+            VolumeMonitor-${{ steps.version.outputs.tag }}-x86_64.AppImage
+            volume_monitor
           draft: false
           prerelease: false

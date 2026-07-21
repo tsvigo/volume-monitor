@@ -78,8 +78,10 @@ jobs:
           SVG
           cp /tmp/icon.svg AppDir/usr/share/icons/hicolor/256x256/apps/volume-monitor.svg
           cp /tmp/icon.svg AppDir/volume-monitor.svg
-          # Fix desktop file path
+          # Fix desktop file: icon path and exec
+          sed -i 's|Icon=.*|Icon=volume-monitor|' AppDir/usr/share/applications/volume-monitor.desktop
           sed -i 's|Exec=.*|Exec=volume_monitor|' AppDir/usr/share/applications/volume-monitor.desktop
+          cp /tmp/icon.svg AppDir/usr/share/icons/hicolor/256x256/apps/volume-monitor.svg
 
       - name: Build AppImage
         run: |

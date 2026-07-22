@@ -14,6 +14,7 @@ class VolumeMonitor : public QWidget {
     double m_vol = 0;
     bool m_muted = false;
     double m_peak = 0;
+    bool m_ready = false;
 
 public:
     VolumeMonitor() {
@@ -27,6 +28,7 @@ public:
         int y = s.value("y", -1).toInt();
         resize(w, h);
         if (x >= 0 && y >= 0) move(x, y);
+        m_ready = true;
 
         auto *timer = new QTimer(this);
         connect(timer, &QTimer::timeout, this, &VolumeMonitor::tick);
@@ -225,6 +227,7 @@ private:
     }
 
     void resizeEvent(QResizeEvent *) override {
+        if (!m_ready) return;
         QSettings s("VolumeMonitor", "VolumeMonitor");
         s.setValue("width", width());
         s.setValue("height", height());
@@ -233,6 +236,7 @@ private:
     }
 
     void moveEvent(QMoveEvent *) override {
+        if (!m_ready) return;
         QSettings s("VolumeMonitor", "VolumeMonitor");
         s.setValue("x", x());
         s.setValue("y", y());

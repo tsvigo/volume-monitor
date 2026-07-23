@@ -28,21 +28,31 @@ public:
         int y = s.value("y", -1).toInt();
         resize(w, h);
         if (x >= 0 && y >= 0) move(x, y);
-        m_ready = true;
+
+        // Delay enabling save until window manager finishes positioning
+        QTimer::singleShot(500, this, [this]() { m_ready = true; });
 
         auto *timer = new QTimer(this);
         connect(timer, &QTimer::timeout, this, &VolumeMonitor::tick);
         timer->start(50);
         tick();
+
+        // Periodic save so position survives kill -9 / shutdown
+        auto *saveTimer = new QTimer(this);
+        connect(saveTimer, &QTimer::timeout, this, &VolumeMonitor::saveState);
+        saveTimer->start(2000);
     }
 
-    ~VolumeMonitor() {
+    void saveState() {
+        if (!m_ready) return;
         QSettings s("VolumeMonitor", "VolumeMonitor");
         s.setValue("width", width());
         s.setValue("height", height());
         s.setValue("x", x());
         s.setValue("y", y());
     }
+
+    ~VolumeMonitor() { saveState(); }
 
 private:
     void tick() {
@@ -226,26 +236,12 @@ private:
             QString("%1%").arg((int)(m_vol * 100)));
     }
 
-    void resizeEvent(QResizeEvent *) override {
-        if (!m_ready) return;
-        QSettings s("VolumeMonitor", "VolumeMonitor");
-        s.setValue("width", width());
-        s.setValue("height", height());
-        s.setValue("x", x());
-        s.setValue("y", y());
-    }
+    void resizeEvent(QResizeEvent *) override { saveState(); }
 
-    void moveEvent(QMoveEvent *) override {
-        if (!m_ready) return;
-        QSettings s("VolumeMonitor", "VolumeMonitor");
-        s.setValue("x", x());
-        s.setValue("y", y());
-    }
+    void moveEvent(QMoveEvent *) override { saveState(); }
 
     void closeEvent(QCloseEvent *e) override {
-        QSettings s("VolumeMonitor", "VolumeMonitor");
-        s.setValue("width", width());
-        s.setValue("height", height());
+        saveState();
         QWidget::closeEvent(e);
     }
 };

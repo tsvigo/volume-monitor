@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="rainbow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff00ff"/>
+      <stop offset="17%" stop-color="#8800ff"/>
+      <stop offset="33%" stop-color="#0088ff"/>
+      <stop offset="50%" stop-color="#00ff88"/>
+      <stop offset="67%" stop-color="#ffff00"/>
+      <stop offset="83%" stop-color="#ff8800"/>
+      <stop offset="100%" stop-color="#ff0044"/>
+    </linearGradient>
+    <radialGradient id="bg" cx="50%" cy="40%">
+      <stop offset="0%" stop-color="#2a2a3a"/>
+      <stop offset="100%" stop-color="#10101a"/>
+    </radialGradient>
+    <radialGradient id="knob" cx="40%" cy="35%">
+      <stop offset="0%" stop-color="#606078"/>
+      <stop offset="50%" stop-color="#383848"/>
+      <stop offset="100%" stop-color="#1a1a28"/>
+    </radialGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="256" height="256" rx="48" fill="url(#bg)"/>
+  <!-- Outer ring glow -->
+  <circle cx="128" cy="115" r="88" fill="none" stroke="url(#rainbow)" stroke-width="22" stroke-linecap="round" stroke-dasharray="410 520" transform="rotate(-130 128 115)" opacity="0.9"/>
+  <!-- Inner ring -->
+  <circle cx="128" cy="115" r="65" fill="none" stroke="#2a2a3a" stroke-width="2"/>
+  <!-- Knob -->
+  <circle cx="128" cy="115" r="52" fill="url(#knob)" stroke="#4a4a5a" stroke-width="1.5"/>
+  <!-- Knob rings -->
+  <circle cx="128" cy="115" r="40" fill="none" stroke="#505065" stroke-width="0.7" opacity="0.5"/>
+  <circle cx="128" cy="115" r="28" fill="none" stroke="#505065" stroke-width="0.7" opacity="0.4"/>
+  <circle cx="128" cy="115" r="16" fill="none" stroke="#505065" stroke-width="0.7" opacity="0.3"/>
+  <!-- Knob highlight -->
+  <circle cx="120" cy="105" r="18" fill="white" opacity="0.06"/>
+  <!-- Indicator line -->
+  <line x1="128" y1="68" x2="128" y2="55" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+  <!-- Volume text -->
+  <text x="128" y="215" text-anchor="middle" fill="#ccc" font-size="32" font-weight="bold" font-family="Sans">VOL</text>
+</svg>

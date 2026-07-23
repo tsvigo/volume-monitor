@@ -26,11 +26,13 @@ public:
         int h = s.value("height", 480).toInt();
         int x = s.value("x", -1).toInt();
         int y = s.value("y", -1).toInt();
-        resize(w, h);
-        if (x >= 0 && y >= 0) move(x, y);
 
-        // Delay enabling save until window manager finishes positioning
-        QTimer::singleShot(500, this, [this]() { m_ready = true; });
+        // Apply saved geometry after window is shown
+        QTimer::singleShot(0, this, [this, w, h, x, y]() {
+            resize(w, h);
+            if (x >= 0 && y >= 0) move(x, y);
+            m_ready = true;
+        });
 
         auto *timer = new QTimer(this);
         connect(timer, &QTimer::timeout, this, &VolumeMonitor::tick);

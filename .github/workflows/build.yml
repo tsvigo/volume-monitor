@@ -19,7 +19,8 @@ jobs:
 
       - name: Build
         run: |
-          g++ -O2 -fPIC -o volume_monitor volume_monitor.cpp $(pkg-config --cflags --libs Qt5Widgets Qt5Core)
+          rcc resources.qrc -o qrc.cpp
+          g++ -O2 -fPIC -o volume_monitor volume_monitor.cpp qrc.cpp $(pkg-config --cflags --libs Qt5Widgets Qt5Core)
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -43,7 +44,8 @@ jobs:
 
       - name: Build
         run: |
-          g++ -O2 -fPIC -o volume_monitor volume_monitor.cpp $(pkg-config --cflags --libs Qt5Widgets Qt5Core)
+          rcc resources.qrc -o qrc.cpp
+          g++ -O2 -fPIC -o volume_monitor volume_monitor.cpp qrc.cpp $(pkg-config --cflags --libs Qt5Widgets Qt5Core)
 
       - name: Get version
         id: version
@@ -54,34 +56,9 @@ jobs:
           mkdir -p AppDir/usr/bin AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/256x256/apps
           cp volume_monitor AppDir/usr/bin/
           cp volume-monitor.desktop AppDir/usr/share/applications/
-          # Create icon from SVG
-          cat > /tmp/icon.svg << 'SVG'
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-            <rect width="256" height="256" rx="40" fill="#1e1e2a"/>
-            <circle cx="128" cy="110" r="75" fill="none" stroke="#444" stroke-width="12"/>
-            <path d="M128 35 A75 75 0 0 1 203 110" fill="none" stroke="url(#g)" stroke-width="14" stroke-linecap="round"/>
-            <defs>
-              <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#ff00ff"/>
-                <stop offset="17%" stop-color="#8800ff"/>
-                <stop offset="33%" stop-color="#0088ff"/>
-                <stop offset="50%" stop-color="#00ff88"/>
-                <stop offset="67%" stop-color="#ffff00"/>
-                <stop offset="83%" stop-color="#ff8800"/>
-                <stop offset="100%" stop-color="#ff0044"/>
-              </linearGradient>
-            </defs>
-            <circle cx="128" cy="110" r="40" fill="#2a2a3a"/>
-            <circle cx="128" cy="110" r="25" fill="#1a1a28"/>
-            <text x="128" y="220" text-anchor="middle" fill="#ddd" font-size="40" font-weight="bold" font-family="Sans">VOL</text>
-          </svg>
-          SVG
-          cp /tmp/icon.svg AppDir/usr/share/icons/hicolor/256x256/apps/volume-monitor.svg
-          cp /tmp/icon.svg AppDir/volume-monitor.svg
-          # Fix desktop file: icon path and exec
+          cp icons/volume-monitor.png AppDir/usr/share/icons/hicolor/256x256/apps/
           sed -i 's|Icon=.*|Icon=volume-monitor|' AppDir/usr/share/applications/volume-monitor.desktop
           sed -i 's|Exec=.*|Exec=volume_monitor|' AppDir/usr/share/applications/volume-monitor.desktop
-          cp /tmp/icon.svg AppDir/usr/share/icons/hicolor/256x256/apps/volume-monitor.svg
 
       - name: Build AppImage
         run: |

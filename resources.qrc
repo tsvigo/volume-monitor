@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/">
+    <file>icons/volume-monitor.png</file>
+  </qresource>
+</RCC>

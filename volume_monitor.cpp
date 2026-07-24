@@ -21,7 +21,7 @@ public:
     VolumeMonitor() {
         setWindowTitle("Volume Control");
         setMinimumSize(200, 200);
-        setWindowIcon(QIcon::fromTheme("volume-monitor"));
+        setWindowIcon(QIcon(":/icons/volume-monitor.png"));
 
         QSettings s("VolumeMonitor", "VolumeMonitor");
         int w = s.value("width", 420).toInt();
